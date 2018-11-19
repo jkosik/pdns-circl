@@ -1,33 +1,79 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
-type Property struct {
-	LastUpdate string `json:"last_update"`
-	Size       int    `json:"size"`
+type Pdns struct {
+	Count      int    `json:"count"`
+	Origin     string `json:"origin"`
+	TimeFirst int    `json:"time_first"`
+	RRType     string `json:"rrtype"`
+	RRName     string `json:"rrname"`
+	RData      string `json:"rdata"`
+	TimeLast  int    `json:"time_last"`
 }
 
-type DBInfo struct {
-	Capec    Property `json:"capec"`
-	Cpe      Property `json:"cpe"`
-	CpeOther Property `json:"cpeOther"`
-	Cves     Property `json:"cves"`
-	Cwe      Property `json:"cwe"`
-	Via4     Property `json:"via4"`
+type Record struct {
+	Record	string
+}
+
+
+===========================
+var input = `
+{"foo": "bar", "aaa":123}
+{"foo": "baz", "aaa":222}
+`
+
+type Doc struct {
+	Foo string
+	Aaa int
 }
 
 func main() {
-	url := "https://cve.circl.lu/api/dbInfo"
+	dec := json.NewDecoder(strings.NewReader(input))
+	for {
+		var doc Doc
 
-//	var username string = "foo"
-//	var passwd string = "bar"
+		err := dec.Decode(&doc)
+		if err == io.EOF {
+			// all done
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
 
+		fmt.Printf("%+v\n", doc)
+	}
+}
+
+
+================
+
+
+
+
+func main() {
+
+	username := flag.String("u", "foo", "Username")
+	password := flag.String("p", "bar", "Password")
+	rrName := flag.String("rrname", "www.circl.lu", "Domain to lookup, e.g. www.google.com")
+	//	rData := flag.String("rdata", "cpa.circl.lu", "Data in response")
+	flag.Parse()
+
+	var urlConcat bytes.Buffer
+	urlConcat.WriteString("https://www.circl.lu/pdns/query/")
+	urlConcat.WriteString(*rrName)
+	url := urlConcat.String()
+	fmt.Println(url)
 	netClient := &http.Client{
 		Timeout: time.Second * 10,
 	}
@@ -37,7 +83,7 @@ func main() {
 		panic(reqErr.Error())
 	}
 
-//	req.SetBasicAuth(username, passwd)
+	req.SetBasicAuth(*username, *password)
 	req.Header.Set("User-Agent", "pdns-circl-golang-client")
 
 	res, resErr := netClient.Do(req)
@@ -45,19 +91,22 @@ func main() {
 		panic(resErr.Error())
 	}
 
-	body, readErr := ioutil.ReadAll(res.Body)
+	body, readErr := io.ioutil.ReadAll(res.Body)
 	if readErr != nil {
 		panic(readErr.Error())
 	}
-//	fmt.Println(body)
+	fmt.Println(body)
 
-//	content := DBInfo{}
-	content := map[string]Property{}
+	//content := Pdns{}
+	//content := map[string]Pdns{}
+	content := Record{}
+	fmt.Println("before")
 	fmt.Println(content)
 	unmarshalErr := json.Unmarshal(body, &content)
 	if unmarshalErr != nil {
 		panic(unmarshalErr.Error())
 	}
+	fmt.Println("after")
 	fmt.Println(content)
 
 	marshal, marshalErr := json.MarshalIndent(content, "", "  ")
