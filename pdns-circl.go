@@ -14,7 +14,7 @@ import (
 type PdnsRecord struct {
 	Count     int    `json:"count"`
 	Origin    string `json:"origin"`
-	TimeFirst int    `json:"time_first"`
+	TimeFirst int	`json:"time_first"`
 	RRType    string `json:"rrtype"`
 	RRName    string `json:"rrname"`
 	RData     string `json:"rdata"`
@@ -24,7 +24,10 @@ type PdnsRecord struct {
 var username = flag.String("u", "foo", "Username")
 var password = flag.String("p", "bar", "Password")
 var rrName = flag.String("rrname", "www.circl.lu", "Domain to lookup, e.g. www.google.com")
-var interactive = flag.Bool("i", false, "Interactive Mode")
+var rrType = flag.String("rrtype", "nil", "RR as subfilter, e.g. A, CNAME, AAAA")
+var raw = flag.Bool("r", false, "Raw output. ready for jq processing.")
+var records []PdnsRecord
+var url string
 
 func callAPI(url string) []byte {
 	netClient := &http.Client{
@@ -51,13 +54,22 @@ func callAPI(url string) []byte {
 	return body
 }
 
+func listRRType(rrtype string, mystruct []PdnsRecord) {
+	fmt.Println("+++++ Listing PDNS records for", url, "+++++\n")
+	for i,rec := range mystruct {
+		if records[i].RRType == rrtype {
+			fmt.Printf("%+v\n", rec)
+		}
+	}
+}
+
 func main() {
 
 	flag.Parse()
 	var urlConcat bytes.Buffer
 	urlConcat.WriteString("https://www.circl.lu/pdns/query/")
 	urlConcat.WriteString(*rrName)
-	url := urlConcat.String()
+	url = urlConcat.String()
 
 	body := callAPI(url)
 
@@ -78,23 +90,37 @@ func main() {
 	}
 	buffer.WriteString("]")     //trailing JSON char
 	jsonData := buffer.String() //final valid JSON string ready for unmarshaling
-	//fmt.Println("jsonData:", jsonData)
-	var records []PdnsRecord
 	err := json.Unmarshal([]byte(jsonData), &records)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	if *interactive == false {
+	if *raw == true {
 		fmt.Println(jsonData)
-	} else {
-		fmt.Println("Running interactive mode for", url)
-       		fmt.Print("Enter First String: ")   //Print function is used to display output in same line
-		var rrtype string    
-	        fmt.Scanln(&rrtype) 
-		fmt.Println("rrtype:",rrtype)
 	}
 
-	//	fmt.Println(records[0].Count)
-
+	switch *rrType {
+	case "A":
+		listRRType("A",records) 
+	case "CNAME":
+		listRRType("CNAME",records) 
+	case "AAAA":
+		listRRType("AAAA",records) 
+	case "PTR":
+		listRRType("PTR",records) 
+	case "SOA":
+		listRRType("SOA",records) 
+	case "NS":
+		listRRType("NS",records) 
+	case "SRV":
+		listRRType("SRV",records) 
+	case "TXT":
+		listRRType("TXT",records) 
+	default:
+		fmt.Println("+++++ Listing PDNS records for", url, "and listing all RR. +++++\n")
+		for _,rec := range records {
+			fmt.Printf("%+v\n", rec)
+		}
+	}
+		
 }
