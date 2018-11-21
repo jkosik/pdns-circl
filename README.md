@@ -1,4 +1,5 @@
-## Passive DNS client for CIRCL PDNS Database - golan implementation
+## Passive DNS client for CIRCL PDNS Database - golang implementation
+The `pdns-circl` client get data from [CIRCL PDNS Database](https://www.circl.lu/services/passive-dns/).  
 Passive DNS data follows [Passive DNS Common Output Format](https://www.ietf.org/archive/id/draft-dulaunoy-dnsop-passive-dns-cof-01.txt).  
 
 ## Usage
