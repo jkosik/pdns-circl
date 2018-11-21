@@ -2,6 +2,12 @@
 The `pdns-circl` client gets data from [CIRCL PDNS Database](https://www.circl.lu/services/passive-dns/).  
 Passive DNS data follows [Passive DNS Common Output Format](https://www.ietf.org/archive/id/draft-dulaunoy-dnsop-passive-dns-cof-01.txt).  
 
+## Installation
+Clone this repo and simply use the binary `pdns-circl`. If needed, compile the golang code for your platform: 
+```
+$ go build pdns-circl.go
+```
+
 ## Usage
 ```
 $ ./pdns-circl -h
