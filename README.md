@@ -1,5 +1,5 @@
 ## Passive DNS client for CIRCL PDNS Database - golang implementation
-The `pdns-circl` client get data from [CIRCL PDNS Database](https://www.circl.lu/services/passive-dns/).  
+The `pdns-circl` client gets data from [CIRCL PDNS Database](https://www.circl.lu/services/passive-dns/).  
 Passive DNS data follows [Passive DNS Common Output Format](https://www.ietf.org/archive/id/draft-dulaunoy-dnsop-passive-dns-cof-01.txt).  
 
 ## Usage
@@ -18,7 +18,7 @@ Usage of ./pdns-circl:
 ```
 
 
-## Human readable PDNS output for www.circl.lu domain
+## Human readable PDNS output for selected domain
 ```
 $ ./pdns-circl -u CIRCL_API_USER -p CIRCL_API_PASSWORD -rrname www.circl.lu 
 +++++ Listing CIRCL PDNS records for www.circl.lu +++++
@@ -46,9 +46,9 @@ TimeLast = 2012-02-14 10:31:34 +0100 CET
 ------------------------------------------
 ```
 
-## Human readable filtered output for requested Resoure Record.
+## Human readable filtered output for selected Resoure Record.
 Subfilter `-rrtype` accepts the following RR types: A, CNAME, AAAA, PTR, SOA, NS, SRV, TXT.  
-When `-rrtype` flag is not used or containes any other option, all RR types are listed.
+When `-rrtype` flag is not used or contains any other option, all RR types are listed.
 ```
 $ ./pdns-circl -u CIRCL_API_USER -p CIRCL_API_PASSWORD -rrname www.google.sk -rrtype CNAME
 +++++ Listing CIRCL PDNS records for www.google.sk +++++
@@ -70,7 +70,7 @@ TimeLast = 2012-01-05 13:17:21 +0100 CET
 ```
 
 ## Raw output
-For automated processing the client supports raw data output, when using `-raw` flag. 
+`pdns-circl` supports raw data output, when using `-raw` flag. Suitable for automated data processing.  
 `-raw` flag ignores `-rrtype` flag and lists all the RR types. Data filtering is kept for external processing, e.g. `jq`.
 ```
 $ ./pdns-circl -u CIRCL_API_USER -p CIRCL_API_PASSWORD -rrname www.google.sk -raw | jq
